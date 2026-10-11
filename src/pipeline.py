@@ -269,11 +269,84 @@ def export_accident_metrics(df: pd.DataFrame, output_json_path: str):
     logger.info(f"Accident metrics exported to: {output_json_path}")
 
 
+def export_accident_patterns_hotspots(df: pd.DataFrame, output_image_path: str):
+    """
+    Exports clean, high-DPI (300 DPI) composite visualization:
+    (a) Accident frequency by hour-of-day with rush-hour highlight bands.
+    (b) Weather condition breakdown and severity proportions.
+    (c) Road surface condition severity factors.
+    """
+    logger.info("Exporting dedicated accident_patterns_hotspots.png...")
+    set_visual_style()
+
+    fig, axes = plt.subplots(1, 3, figsize=(21, 6))
+    plt.subplots_adjust(wspace=0.30)
+
+    fig.suptitle(
+        "Urban Traffic Accident Patterns: Diurnal Cycles, Weather Sensitivity & Road Surface Hazards",
+        fontsize=16,
+        fontweight="bold",
+        y=0.98
+    )
+
+    # Panel 1: Accident frequency by hour-of-day
+    hourly_counts = df["Hour"].value_counts().sort_index()
+    axes[0].plot(hourly_counts.index, hourly_counts.values, marker="o", color="#c62828", lw=2.5, markersize=6)
+    axes[0].axvspan(7, 10, color="#ffcdd2", alpha=0.5, label="Morning Rush (7-10 AM)")
+    axes[0].axvspan(16, 19, color="#ffe082", alpha=0.5, label="Evening Rush (4-7 PM)")
+    axes[0].set_title("(a) Accident Volume by Hour of Day", fontweight="bold", pad=12)
+    axes[0].set_xlabel("Hour of Day (0-23)")
+    axes[0].set_ylabel("Accident Frequency")
+    axes[0].set_xticks(range(0, 24, 3))
+    axes[0].legend(loc="upper left", frameon=True)
+
+    # Panel 2: Weather condition breakdown
+    weather_sev = pd.crosstab(df["Weather_Condition"], df["Severity"], normalize="index") * 100
+    weather_sev.plot(
+        kind="barh",
+        stacked=True,
+        colormap="coolwarm",
+        ax=axes[1],
+        edgecolor="black"
+    )
+    axes[1].set_title("(b) Collision Severity by Weather State", fontweight="bold", pad=12)
+    axes[1].set_xlabel("Severity Composition (%)")
+    axes[1].set_ylabel("Weather Condition")
+    axes[1].legend(title="Severity Tier", loc="lower right", frameon=True, fontsize=9)
+
+    # Panel 3: Road surface severity factors
+    road_sev = df.groupby("Road_Surface_Conditions")["Severity"].agg(["count", "mean"]).reset_index()
+    road_sev = road_sev.sort_values(by="mean", ascending=False)
+    bars = axes[2].bar(
+        road_sev["Road_Surface_Conditions"],
+        road_sev["mean"],
+        color=["#b71c1c", "#e65100", "#1565c0", "#2e7d32"][:len(road_sev)],
+        edgecolor="black",
+        alpha=0.88
+    )
+    for bar in bars:
+        h = bar.get_height()
+        axes[2].text(
+            bar.get_x() + bar.get_width() / 2, h + 0.04,
+            f"{h:.2f}", ha="center", fontweight="bold", fontsize=11
+        )
+    axes[2].set_ylim(1.0, 3.2)
+    axes[2].set_title("(c) Mean Severity by Road Surface State", fontweight="bold", pad=12)
+    axes[2].set_xlabel("Road Surface Condition")
+    axes[2].set_ylabel("Mean Severity Index (1-4)")
+
+    os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
+    plt.savefig(output_image_path, dpi=300, bbox_inches="tight")
+    plt.close()
+    logger.info(f"Accident patterns figure exported to: {output_image_path}")
+
+
 def main():
     """Main execution function for traffic accident analysis."""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_path = os.path.join(base_dir, "data", "dataset.csv")
     report_img_path = os.path.join(base_dir, "reports", "visual_insights.png")
+    composite_img_path = os.path.join(base_dir, "reports", "accident_patterns_hotspots.png")
     report_map_path = os.path.join(base_dir, "reports", "accident_hotspots.html")
     metrics_json_path = os.path.join(base_dir, "reports", "accident_summary.json")
 
@@ -282,6 +355,7 @@ def main():
     df_temp = extract_temporal_features(df_raw)
 
     generate_static_report(df_temp, report_img_path)
+    export_accident_patterns_hotspots(df_temp, composite_img_path)
     generate_interactive_folium_map(df_temp, report_map_path)
     export_accident_metrics(df_temp, metrics_json_path)
     logger.info("SCT_DS_4 pipeline completed successfully.")

@@ -76,7 +76,10 @@ The dataset incorporates real-world temporal, environmental, and spatial coordin
 
 ## 🖼️ Visual Insights Preview
 
-### Static 6-Panel Executive Dashboard
+### Composite Diurnal Patterns & Environmental Hazards
+![Accident Patterns & Hotspots](reports/accident_patterns_hotspots.png)
+
+### Comprehensive 6-Panel Executive Dashboard
 ![Accident Insights Dashboard](reports/visual_insights.png)
 
 ### Interactive Folium Hotspot Map
