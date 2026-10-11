@@ -1,0 +1,36 @@
+{
+    "total_accidents_analyzed": 2800,
+    "overall_mean_severity": 2.0,
+    "severity_counts": {
+        "2": 1023,
+        "1": 999,
+        "3": 543,
+        "4": 235
+    },
+    "rush_hour_breakdown": {
+        "Evening Peak (4-7 PM)": 1030,
+        "Morning Peak (7-10 AM)": 978,
+        "Off-Peak": 792
+    },
+    "weather_severity_averages": {
+        "Clear/Fair": 1.9,
+        "Cloudy/Overcast": 1.87,
+        "Fog/Mist": 2.1,
+        "Rain": 2.36,
+        "Snow/Ice": 2.3,
+        "Thunderstorm": 2.29
+    },
+    "road_condition_severity_averages": {
+        "Dry": 1.86,
+        "Flooded": 2.41,
+        "Snow/Ice": 2.29,
+        "Wet": 2.35
+    },
+    "top_accident_hotspot_sectors": {
+        "Loop / Downtown Chicago": 988,
+        "OHare Corridor / I-90": 665,
+        "South Shore / I-94": 533,
+        "North Shore / Evanston": 353,
+        "West Side / Cicero": 261
+    }
+}
